@@ -6,7 +6,7 @@
     :zooms="zooms" 
     :zoom="zoom" 
     :center="center"
-    
+    :mapStyle="mapStyle"
     viewMode="3D"
     :pitch="pitch"
     :rotation="rotation"
@@ -19,8 +19,8 @@
       <!-- <amap-marker
        
       /> -->
-      <amap-satellite-layer ></amap-satellite-layer>
-      <amap-road-net-layer ></amap-road-net-layer>
+      <!-- <amap-satellite-layer ></amap-satellite-layer>
+      <amap-road-net-layer ></amap-road-net-layer> -->
      
     </amap>
   </div>
@@ -42,8 +42,8 @@ export default {
       zoom: 17, //初始化地图级别
       zooms: [17, 22],
       center: [106.530084, 29.4525], //初始化地图中心点位置
-
       otherObj:{},
+      mapStyle:"amap://styles/dark",
       amapManager:amapManager,
       map:{},//地图实例
       
@@ -54,37 +54,25 @@ export default {
    
   },
   methods:{
+    changeStyle(){
+       return new AMap.TileLayer.Satellite({zIndex:0})
+    },
+    addLabels(){//添加标记图层
+      this.map.add(this.labels[4])
+    },
     doWithMap(){
       this.map=this.$refs.myMap.$map
       console.log("myMap",this.map)
       let that=this
       let buildingLayer= that.initBuildings()
+      console.log("layers",this.map.getLayers())
+      this.labels=this.map.getLayers()//获取图层
       this.map.setLayers([
-                          // 高德默认标准图层
-                      new AMap.TileLayer.Satellite({zIndex:0}),
                       new AMap.TileLayer.RoadNet({//路网图层
                       zIndex: 16,
                       }),
                       buildingLayer,
                     ])
-   
-
-  
-
- 
-
-      var layer = new AMap.LabelsLayer({
-        zooms: [3, 20],
-        zIndex: 1000,
-        // 开启标注避让，默认为开启，v1.4.15 新增属性
-        collision: true,
-        // 开启标注淡入动画，默认为开启，v1.4.15 新增属性
-        animation: true,
-    });
-
-        this.map.add(layer);
-
-      
     // 图层添加到地图
       var bounds = this.map.getBounds();
       this.map.setLimitBounds(bounds);
@@ -101,7 +89,7 @@ export default {
                 hideWithoutStyle: false, //是否隐藏设定区域外的楼块
                 areas: [{ //围栏,
                     visible:true,//是否可见
-                    rejectTexture: false, //是否屏蔽自定义地图的纹理
+                    rejectTexture: true, //是否屏蔽自定义地图的纹理
                     color1: 'ff99ff00', //楼顶颜色
                     color2: 'ff999900', //楼面颜色
                     path: [
